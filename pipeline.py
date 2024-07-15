@@ -4,12 +4,12 @@ from utils import extract_features, embed
 import json
 
 
-pinecone_api_key = os.environ.get('PINECONE_API_KEY') or "de307987-1233-4e50-b76f-5caa45515a64"
+pinecone_api_key = os.environ.get('PINECONE_API_KEY') or ""
 
 
 
 # openai doesn't need to be initialized, but need to set api key
-os.environ["OPENAI_API_KEY"] = "sk-proj-W5AbObl8rTot2sToNh3AT3BlbkFJ3ILh68KBofwVQIE1jtRM"
+os.environ["OPENAI_API_KEY"] = ""
 
 with open('img_paths_to_int_id.json', 'r') as f1:
 
