@@ -4,6 +4,12 @@ from torchvision import models, transforms
 from PIL import Image
 import numpy as np
 import openai
+import os
+
+open_api_key = os.environ.get('OPENAI_API_KEY')
+
+openai.api_key=open_api_key
+
 
 class ImageFeatureExtractor:
     def __init__(self):
@@ -36,6 +42,7 @@ class OpenAIEmbedder:
     def __init__(self, model_name="text-embedding-ada-002"):
         self.model_name = model_name
 
+    
     def embed(self, docs: list[str]) -> list[list[float]]:
         res = openai.embeddings.create(
             input=docs,
