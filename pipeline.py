@@ -4,13 +4,13 @@ import pinecone
 from pinecone import ServerlessSpec
 from utils import ImageFeatureExtractor
 from utils import OpenAIEmbedder
+import config
 
 
 pinecone_api_key = os.environ.get('PINECONE_API_KEY') or ""
 open_api_key = os.environ.get('OPENAI_API_KEY') or ""
 
-# openai doesn't need to be initialized, but need to set api key
-# os.environ["OPENAI_API_KEY"] = ""
+
 
 class PineconeClient:
     def __init__(self, api_key, cloud='aws', region='us-east-1'):
@@ -44,16 +44,16 @@ def get_pid_to_int_id(ids,intId_image_dict):
 
     
 # Load mappings
-intId_image_data = load_json('updated_struct_jsons/intid_to_imagepth_pid.json')
+intId_image_data = load_json(config.int_id_to_image_data_path)
 
-pid_to_text_data=load_json('updated_struct_jsons/titles-descrp-paths.json')
+pid_to_text_data=load_json(config.pid_text_data_pth)
 
 # intid_to_item_name = load_json('struct_jsons/titles-descrp-paths.json')
 
 # Pinecone setup
 pinecone_client = PineconeClient(api_key=pinecone_api_key)
-product_listing_index = pinecone_client.get_index('full-pd-embeddings')
-title_emb_index = pinecone_client.get_index('full-text-embeddings')
+product_listing_index = pinecone_client.get_index(config.product_index_name)
+title_emb_index = pinecone_client.get_index(config.text_index_name)
 
 # Initialize feature extractor and embedder
 image_feature_extractor = ImageFeatureExtractor()
@@ -63,8 +63,11 @@ openai_embedder = OpenAIEmbedder()
 def get_similar_product(image_pth, image_text): 
 
     # Query image
-    query_img_path = image_pth
-    query_emb = image_feature_extractor.extract_features('product-listing-dataset/images/small/' + query_img_path).tolist()
+ 
+    # query_emb = image_feature_extractor.extract_features_lambda('product-listing-dataset/images/small/' + query_img_path)
+
+    query_emb = image_feature_extractor.extract_features_lambda(image_pth)
+
 
     # Perform the image search
     search_result = product_listing_index.query(namespace="ns1", vector=query_emb, top_k=15, include_values=True)
@@ -124,9 +127,6 @@ def get_similar_product(image_pth, image_text):
     
     
     
-    
-    
-    
     weighted_averages=[]
 
     for pid in common_pid:
@@ -155,59 +155,6 @@ def get_similar_product(image_pth, image_text):
         out_paths.append(pid_to_text_data[pid]['image_paths'])
         out_titles.append([pid_to_text_data[pid]['item_name'] , pid_to_text_data[pid]['features']])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # print('matching image pids', out_pid_image)
-
-    # out_pid_image_vals=dict(zip(out_pid_image,out_ids_img.values()))
-
-    # pId_int_id=dict(zip(out_ids_img, out_pid_image))
-
-    
-
-    # # Find common pairs and calculate weighted averages
-    # common_pid=set(out_pid_image_vals.keys()).intersection(out_ids_title.keys())
-
-    # print(common_pid)
-    # if len(common_pid)!=0:
-    #     common_pairs = {key: (out_pid_image_vals[key], out_ids_title[key]) for key in common_pid}
-    #     weighted_averages = {key: (value[0] + value[1]) / 2 for key, value in common_pairs.items()}
-    # else:
-    #     common_pairs=out_ids_title
-    #     weighted_averages=out_ids_title
-
-    
-    # sorted_weighted_averages = sorted(weighted_averages.items(), key=lambda item: item[1])
-    # if len(sorted_weighted_averages) > 4:
-    #     top_4_keys = [item[0] for item in sorted_weighted_averages[:4]]
-    # else:
-    #     top_4_keys = [item[0] for item in sorted_weighted_averages]
-    
-    # # Retrieve paths and titles
-    # out_paths = [intId_image_data[pId_int_id[key]] for key in top_4_keys]
-    # out_titles = [[pid_to_text_data[key]['item_name'] , pid_to_text_data[key]['features'] ] for key in top_4_keys]
 
     return out_paths, out_titles
 
