@@ -1,5 +1,5 @@
-import torch
-from torchvision import models, transforms
+# import torch
+# from torchvision import models, transforms
 from PIL import Image
 import openai
 import os
@@ -15,24 +15,24 @@ openai.api_key=open_api_key
 
 class ImageFeatureExtractor:
     def __init__(self):
-        self.model = self._setup_model()
-        self.preprocess = self._setup_preprocessing()
+        # self.model = self._setup_model()
+        # self.preprocess = self._setup_preprocessing()
         self.api_url = "https://f783tgqxjb.execute-api.eu-north-1.amazonaws.com/dev"
 
-    def _setup_model(self):
-        model = models.resnet50(pretrained=True)
-        model = torch.nn.Sequential(*(list(model.children())[:-1]))  # Remove the last layer
-        model.eval()  # Set the model to evaluation mode
-        return model
+    # def _setup_model(self):
+    #     model = models.resnet50(pretrained=True)
+    #     model = torch.nn.Sequential(*(list(model.children())[:-1]))  # Remove the last layer
+    #     model.eval()  # Set the model to evaluation mode
+    #     return model
 
-    def _setup_preprocessing(self):
-        preprocess = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-        return preprocess
+    # def _setup_preprocessing(self):
+    #     preprocess = transforms.Compose([
+    #         transforms.Resize(256),
+    #         transforms.CenterCrop(224),
+    #         transforms.ToTensor(),
+    #         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    #     ])
+    #     return preprocess
     
     # def _encode_image_to_base64(self,image_path):
     #     """ Encodes an image to a base64 string. """
@@ -55,12 +55,12 @@ class ImageFeatureExtractor:
         response = requests.post(api_url, json=payload, headers=headers)
         return response.json()
 
-    def extract_features(self, image_path):
-        image = Image.open(image_path).convert('RGB')
-        image = self.preprocess(image).unsqueeze(0)  # Add batch dimension
-        with torch.no_grad():  # No need to compute gradients
-            features = self.model(image)
-        return features.flatten().numpy()
+    # def extract_features(self, image_path):
+    #     image = Image.open(image_path).convert('RGB')
+    #     image = self.preprocess(image).unsqueeze(0)  # Add batch dimension
+    #     with torch.no_grad():  # No need to compute gradients
+    #         features = self.model(image)
+    #     return features.flatten().numpy()
     
     def extract_features_lambda(self, image):
         base64_encoded_image = self._encode_image_to_base64(image)
