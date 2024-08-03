@@ -7,6 +7,9 @@ import base64
 import io
 import requests
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 open_api_key = os.environ.get('OPENAI_API_KEY')
 
@@ -45,7 +48,9 @@ class ImageFeatureExtractor:
     def _encode_image_to_base64(self,image):
         """ Encodes an image to a base64 string. """
         buffered = io.BytesIO()
-        image.save(buffered, format="JPEG")  # You can change JPEG to PNG if necessary
+        image_format = image.format if image.format else "JPEG"  # Default to JPEG if format is None
+
+        image.save(buffered, format=image_format)  # You can change JPEG to PNG if necessary
         return base64.b64encode(buffered.getvalue()).decode()   
     
     def _invoke_api_with_image(self,api_url, base64_string):

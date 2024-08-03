@@ -98,7 +98,23 @@ def get_similar_product(image_pth, image_text):
     out_pids_title_keys = {str(key) for key in out_pids_title.keys()}
 
     # Calculate common PIDs
+    common_pid=()
     common_pid = pid_to_int_ID_keys.intersection(out_pids_title_keys)
+
+    if len(common_pid)<4:
+        common_pid = list(common_pid)+list(pid_to_int_ID_keys.union(out_pids_title_keys)- common_pid)
+        print('final pids', common_pid)
+
+        out_paths=[]
+        out_titles=[]
+        for pid in common_pid[0:4]:
+            out_paths.append(pid_to_text_data[pid]['image_paths'])
+            out_titles.append([pid_to_text_data[pid]['item_name'] , pid_to_text_data[pid]['features']])
+        
+        return out_paths, out_titles
+
+
+
 
     # Debugging: Print common PIDs
     print('common pid', common_pid)
@@ -138,7 +154,7 @@ def get_similar_product(image_pth, image_text):
 
     
     unique_pid = set()
-# List to store the top unique k1 tuples
+    #   List to store the top unique k1 tuples
     top_unique_k1_results = []
     for k1, v1, value in weighted_averages:
         if k1 not in unique_pid:
